@@ -1,0 +1,7 @@
+# tomcat port
+server:
+  port: 9050
+logging:
+  config: classpath:log4j2.xml
+  level:
+    com.hicola: info
