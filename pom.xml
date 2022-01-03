@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.hicola</groupId>
-    <artifactId>SpringBootWebForK8sDemo</artifactId>
+    <artifactId>web-for-k8s-demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>SpringBootWebForK8sDemo</name>
     <description>Demo of SpringBoot Web Project for K8s deployment</description>
@@ -60,35 +60,58 @@
     </dependencies>
 
     <build>
-        <defaultGoal>compile</defaultGoal>
+        <!--use our project artifactId as the project name-->
+        <finalName>${project.artifactId}</finalName>
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>com.hicola.SpringBootWebForK8sDemoApplication</mainClass>
-                    <jvmArguments>-Dfile.encoding=UTF-8</jvmArguments>
-                    <fork>true</fork>
-                    <layout>ZIP</layout>
-                    <excludes>
-                        <execution>
-                            <goals>
-                                <goal>repackage</goal>
-                            </goals>
-                        </execution>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
             </plugin>
+            <!--use the docker-maven-plugin-->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <id>build-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <!--here special the image name that will be generated, we use <author name + project.artifactId> as our image name -->
+                    <imageName>willisbai/${project.artifactId}</imageName>
+                    <!--special the image version, we use the default value: latest-->
+                    <imageTags>
+                        <imageTag>latest</imageTag>
+                    </imageTags>
+                    <!--special the JDK1.8 as our base image-->
+                    <baseImage>java</baseImage>
+                    <!--Optional item, special the author info of the image-->
+                    <maintainer>willis.bai@outlook.com</maintainer>
+                    <!--switch to ROOT directory-->
+                    <workdir>/ROOT</workdir>
+                    <!--check the java version-->
+                    <cmd>["java","-version"]</cmd>
+                    <!--${project.build.finalName}.jar is the name of the generated jar package-->
+                    <entryPoint>["java","-jar","/${project.build.finalName}.jar"]</entryPoint>
+                    <!--special the remote docker api URL-->
+                    <dockerHost>http://192.168.137.200:2375</dockerHost>
+
+                    <!--here will copy the generated jar to the special directory-->
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <!--the generated jar directory, here we configure the target path-->
+                            <directory>${project.build.directory}</directory>
+                            <!--special the files that will be copied, include jar package, here we use the jar name that mapped in the Dockfile-->
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
                 </configuration>
             </plugin>
         </plugins>
