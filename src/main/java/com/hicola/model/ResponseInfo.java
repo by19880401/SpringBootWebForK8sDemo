@@ -1,5 +1,8 @@
 package com.hicola.model;
 
+import java.util.List;
+import java.util.Map;
+
 public class ResponseInfo<T> {
     public static final String SUCCESS_CODE = "200";
     public static final String SUCCESS_MSG = "success";
@@ -14,6 +17,14 @@ public class ResponseInfo<T> {
         ResponseInfo res = new ResponseInfo();
         res.setErrorCode(SUCCESS_CODE);
         res.setErrorMsg(SUCCESS_MSG);
+        return res;
+    }
+
+    public static ResponseInfo responseSuccessMsg(Map data) {
+        ResponseInfo res = new ResponseInfo();
+        res.setErrorCode(SUCCESS_CODE);
+        res.setErrorMsg(SUCCESS_MSG);
+        res.setData(data);
         return res;
     }
 

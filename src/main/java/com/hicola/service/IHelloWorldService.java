@@ -1,6 +1,10 @@
 package com.hicola.service;
 
+import java.util.Map;
+
 public interface IHelloWorldService {
 
-    public void helloWorld();
+    void helloWorld();
+
+    Map<String, String> generateNormalUUID();
 }
